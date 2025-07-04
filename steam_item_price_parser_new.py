@@ -34,9 +34,7 @@ if __name__ == "__main__":
 
 #=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====# settings | options
 
-i = 0
 prices_final = []
-to_process_numbers = []
 
 items = [
     { "name": "Gamma 2 Case", "url": "https://steamcommunity.com/market/listings/730/Gamma%202%20Case", "bfp": "L3"},
