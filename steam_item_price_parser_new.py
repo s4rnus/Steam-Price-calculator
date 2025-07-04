@@ -1,12 +1,16 @@
 from locale import resetlocale
+
 #
+
 from selenium.webdriver import Edge
 from selenium.webdriver.common.by import By
 from selenium.webdriver.edge.options import Options
 from selenium.webdriver.edge.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+
 #
+
 from bs4 import BeautifulSoup
 import pandas as pd
 import openpyxl as OP
@@ -14,6 +18,7 @@ from openpyxl import load_workbook
 from openpyxl import Workbook
 import time
 import random
+
 #
 
 options = Options()
@@ -91,4 +96,3 @@ print ( usd_rate )
 input( "Press Enter to close the window" )
 driver.quit ()
 
-#testtttttttttt
