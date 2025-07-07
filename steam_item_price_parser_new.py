@@ -2,24 +2,25 @@ from locale import resetlocale
 
 #
 
+import pandas as pd
+import openpyxl as OP
+import time
+import random
+
+#
+
 from selenium.webdriver import Edge
 from selenium.webdriver.common.by import By
 from selenium.webdriver.edge.options import Options
 from selenium.webdriver.edge.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-
-#
-
 from bs4 import BeautifulSoup
-import pandas as pd
-import openpyxl as OP
 from openpyxl import load_workbook
 from openpyxl import Workbook
-import time
-import random
 
 #
+
 
 options = Options()
 options.add_argument( "--log-level=3" )
