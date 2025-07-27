@@ -1,4 +1,5 @@
 from locale import resetlocale
+from xml.dom.minidom import Element
 
 #
 
@@ -19,7 +20,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 
-#
+#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====# imports | from's
 
 options = Options()
 options.add_argument( "--log-level=3" )
@@ -34,54 +35,64 @@ if __name__ == "__main__":
 
 #=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====# settings | options
 
+rates = []
 prices_final = []
 
-class parser_defs ():
+#def get_response_code ( logs ):
+#    driver.get_log ( "performance" )
+#
+#    return logs
 
-    def find_USD_to_RUB ( self ):
+
+def find_currency_rates ( rates ):
+
+    try:
 
         driver.get ( rates[0]["url"] )
+        element = WebDriverWait(driver, 4).until(EC.presence_of_element_located((By.CLASS_NAME, "col-md-2 col-xs-9 _right mono-num")))
+
+        if element: 
+
+            html_source = driver.page_source
+            soup = BeautifulSoup( html_source, 'html.parser' )
+    
+    finally:
+
+        rates_pre = soup.find_all( 'div', class_='col-md-2 col-xs-9 _right mono-num' )
+        rate = rates_pre[ 3 ].text.strip()
+        rates.append ( rate )
+
+    return rates
+
+
+def find_price ( items ):
+
+    for item in items:
 
         try:
-            element = WebDriverWait( driver, 4 ).until(EC.presence_of_element_located( 'div', class_='col-md-2 col-xs-9 _right mono-num' ))
-            
-        finally: 
-            html_source = driver.page_source
-            soup = BeautifulSoup ( html_source, 'html.parser' )
 
-            usd_rates_pre = soup.find_all( 'div', class_='col-md-2 col-xs-9 _right mono-num' )
-            usd_rate_pre = usd_rates_pre[ 3 ]
-            usd_rate = usd_rate_pre.text.strip()
-
-        return usd_rate
-
-
-    def find_price ( self ):
-
-        for item in items:
-            
             driver.get ( item["url"] )
+            element = WebDriverWait(driver, 4).until(EC.presence_of_element_located((By.CLASS_NAME, "market_commodity_orders_header_promote")))
 
-            try:
-                element = WebDriverWait ( driver, 6 ).until(EC.presence_of_element_located( 'span', class_='market_commodity_orders_header_promote' ))
-
-            finally:
+            if element:
                 html_source = driver.page_source
-                soup = BeautifulSoup ( html_source, 'html.parser' )
+                soup = BeautifulSoup( html_source, 'html.parser' )
 
-                prices = soup.find_all( 'span', class_='market_commodity_orders_header_promote' )
-                price = prices[ 1 ].text.strip()
-                prices_final.append( price )
+        finally:
 
-        return prices_final
+            prices = soup.find_all( 'span', class_='market_commodity_orders_header_promote' )
+            price = prices[ 1 ].text.strip()
+            prices_final.append( price )
 
-prices = parser_defs.find_price ()
-rate = parser_defs.find_USD_to_RUB ()
+    return prices_final
+
+prices = find_price (items)
+rates = find_currency_rates ( rates )
 
 for price in prices_final:
     print ( price )
 
-print ( rate )
+print ( rates )
 
 input( "Press Enter to close the window" )
 driver.quit ()
