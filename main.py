@@ -24,7 +24,7 @@ from bs4 import BeautifulSoup
 
 #=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====# imports | from's
 
-options = Options()
+options = Options ()
 options.add_argument( "--log-level=3" )
 options.add_argument( "--disable-extensions" )
 options.add_argument( "--disable-blink-features=AutomationControlled" )
@@ -39,7 +39,6 @@ if __name__ == "__main__":
 
 rates_final = []
 prices_final = []
-
 
 def find_currency_rates( currencies, id_to_char ):
 
@@ -82,6 +81,8 @@ def find_prices ( items ):
             print ( f"An error occured while parsing price: { str( e ) }" )
 
     return prices_final
+
+#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====# def activations | prints
 
 find_currency_rates ( currencies, id_to_char )
 find_prices ( items )
