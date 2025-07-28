@@ -1,5 +1,5 @@
 from locale import resetlocale
-from urllib import response
+from urllib import request, response
 from xml.dom.minidom import Element
 
 #
@@ -13,7 +13,7 @@ import requests
 
 from defs import items
 from defs import currencies
-from defs import needed_currencies
+from defs import id_to_char
 from selenium.webdriver import Edge
 from selenium.webdriver.common.by import By
 from selenium.webdriver.edge.options import Options
@@ -41,26 +41,24 @@ rates_final = []
 prices_final = []
 
 
-def get_response_code ( logs ):
-    driver.get_log ( "performance" )
+def find_currency_rates( currencies, id_to_char ):
 
-    return logs
+    try:
+        response = requests.get( currencies[ 0 ][ "url" ], timeout=10 )
+        response.raise_for_status ()
 
+        print(f"Response status code for currency rate parser: { response.status_code } ", "\n" )
+        soup = BeautifulSoup( response.content, 'xml' )
+        currency_id = id_to_char[ 0 ][ "id" ]
+        valute = soup.find( 'Valute', ID=currency_id )
 
+        if valute:
+            rates_final.append ( valute.Value.text )
 
-def find_currency_rates ( currencies ):
-
-    response = requests.get ( currencies[0]["url"] )
-    soup = BeautifulSoup ( response.content, 'xml' )
-
-    valutes = soup.find_all ( 'Valute' )
-    currency = soup.find ( 'Valute', ID = 'R01235' )
-    currency_stripped = currency.Value.text
-
-    rates_final.append ( currency_stripped )
+    except Exception as e:
+        print ( f"An error occured while parsing currency rate: { str (e) }" )
 
     return rates_final
-
 
 
 def find_prices ( items ):
@@ -68,15 +66,16 @@ def find_prices ( items ):
     for item in items:
 
         try:
+
             driver.get ( item["url"] )
-            element = WebDriverWait(driver, 4).until(EC.presence_of_element_located((By.CLASS_NAME, "market_commodity_orders_header_promote")))
+            element = WebDriverWait( driver, 4 ).until( EC.presence_of_element_located(( By.CLASS_NAME, "market_commodity_orders_header_promote" )))
             html_source = driver.page_source
             soup = BeautifulSoup( html_source, 'html.parser' )
 
             if element:
 
                 prices = soup.find_all( 'span', class_='market_commodity_orders_header_promote' )
-                price = prices[ 1 ].text.strip()
+                price = prices[ 1 ].text.strip ()
                 prices_final.append( price )
 
         except Exception as e:
@@ -84,11 +83,11 @@ def find_prices ( items ):
 
     return prices_final
 
-find_currency_rates ( currencies )
+find_currency_rates ( currencies, id_to_char )
 find_prices ( items )
 
 for rate in rates_final:
-    print ( rate )
+    print ( rate, "\n" )
 
 for price in prices_final:
     print ( price )

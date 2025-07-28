@@ -1,5 +1,3 @@
-
-
 items = [
     { "name": "Gamma 2 Case", "url": "https://steamcommunity.com/market/listings/730/Gamma%202%20Case", "bfp": "L3"},
     { "name": "Stockholm 2021 Legends Sticker Capsule", "url": "https://steamcommunity.com/market/listings/730/Stockholm%202021%20Legends%20Sticker%20Capsule", "bfp": "L4"},
@@ -13,9 +11,9 @@ items = [
     ]
 
 currencies = [
-    { "name": "USD/RUB", "url": "https://www.cbr.ru/scripts/XML_daily.asp", "bfr": "A1"}
+    { "name": "xml_currencies", "url": "https://www.cbr.ru/scripts/XML_daily.asp", "bfr": "A1"}
     ]
 
-needed_currencies = [
-    { "char_code": "USD" }
+id_to_char = [
+    { "id": "R01235", "char_code": "USD" }
     ]
