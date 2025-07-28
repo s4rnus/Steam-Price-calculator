@@ -1,17 +1,19 @@
 from locale import resetlocale
+from urllib import response
 from xml.dom.minidom import Element
 
 #
 
 import pandas as pd
-import openpyxl as OP
 import time
 import random
+import requests
 
 #
 
 from defs import items
-from defs import rates
+from defs import currencies
+from defs import needed_currencies
 from selenium.webdriver import Edge
 from selenium.webdriver.common.by import By
 from selenium.webdriver.edge.options import Options
@@ -35,64 +37,62 @@ if __name__ == "__main__":
 
 #=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====# settings | options
 
-rates = []
+rates_final = []
 prices_final = []
 
-#def get_response_code ( logs ):
-#    driver.get_log ( "performance" )
-#
-#    return logs
+
+def get_response_code ( logs ):
+    driver.get_log ( "performance" )
+
+    return logs
 
 
-def find_currency_rates ( rates ):
 
-    try:
+def find_currency_rates ( currencies ):
 
-        driver.get ( rates[0]["url"] )
-        element = WebDriverWait(driver, 4).until(EC.presence_of_element_located((By.CLASS_NAME, "col-md-2 col-xs-9 _right mono-num")))
+    response = requests.get ( currencies[0]["url"] )
+    soup = BeautifulSoup ( response.content, 'xml' )
 
-        if element: 
+    valutes = soup.find_all ( 'Valute' )
+    currency = soup.find ( 'Valute', ID = 'R01235' )
+    currency_stripped = currency.Value.text
 
-            html_source = driver.page_source
-            soup = BeautifulSoup( html_source, 'html.parser' )
-    
-    finally:
+    rates_final.append ( currency_stripped )
 
-        rates_pre = soup.find_all( 'div', class_='col-md-2 col-xs-9 _right mono-num' )
-        rate = rates_pre[ 3 ].text.strip()
-        rates.append ( rate )
-
-    return rates
+    return rates_final
 
 
-def find_price ( items ):
+
+def find_prices ( items ):
 
     for item in items:
 
         try:
-
             driver.get ( item["url"] )
             element = WebDriverWait(driver, 4).until(EC.presence_of_element_located((By.CLASS_NAME, "market_commodity_orders_header_promote")))
+            html_source = driver.page_source
+            soup = BeautifulSoup( html_source, 'html.parser' )
 
             if element:
-                html_source = driver.page_source
-                soup = BeautifulSoup( html_source, 'html.parser' )
 
-        finally:
+                prices = soup.find_all( 'span', class_='market_commodity_orders_header_promote' )
+                price = prices[ 1 ].text.strip()
+                prices_final.append( price )
 
-            prices = soup.find_all( 'span', class_='market_commodity_orders_header_promote' )
-            price = prices[ 1 ].text.strip()
-            prices_final.append( price )
+        except Exception as e:
+            print ( f"An error occured while parsing price: { str( e ) }" )
 
     return prices_final
 
-prices = find_price (items)
-rates = find_currency_rates ( rates )
+find_currency_rates ( currencies )
+find_prices ( items )
+
+for rate in rates_final:
+    print ( rate )
 
 for price in prices_final:
     print ( price )
 
-print ( rates )
 
 input( "Press Enter to close the window" )
 driver.quit ()

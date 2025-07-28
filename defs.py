@@ -12,6 +12,10 @@ items = [
     { "name": "Operation Phoenix Weapon Case", "url": "https://steamcommunity.com/market/listings/730/Operation%20Phoenix%20Weapon%20Case", "bfp": "L11"},
     ]
 
-rates = [
-    { "name": "USD/RUB", "url": "https://cbr.ru", "bfr": "A1"}
+currencies = [
+    { "name": "USD/RUB", "url": "https://www.cbr.ru/scripts/XML_daily.asp", "bfr": "A1"}
+    ]
+
+needed_currencies = [
+    { "char_code": "USD" }
     ]
