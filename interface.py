@@ -1,22 +1,30 @@
 from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton
 
-class MainWindow ( QMainWindow ):
+from defs import items
+from defs import currencies
+from defs import id_to_char
 
-    def button_clicked( self ):
-        print ( "Button clicked" )
 
-
-    def __init__ ( self ):
+class MainWindow(QMainWindow):
+    def __init__(self):
         super().__init__()
+
+        self.button_is_checked = True
         
-        self.setWindowTitle ( "Steam USD|Price parser" )
-        self.setMinimumSize ( 400,400 )
+        self.setWindowTitle("Steam USD|Price parser")
+        self.setMinimumSize(1200, 800)
+        self.setMaximumSize(1920, 1080)
 
-        button = QPushButton( "Press me!" )
-        button.clicked.connect ( self.button_clicked )
+        self.button = QPushButton("Press me bitch.")
+        self.button.setCheckable(True)
+        self.button.clicked.connect(self.the_button_was_clicked)
 
-        self.setCentralWidget( button )
+        self.setCentralWidget(self.button)
+
+    def the_button_was_clicked(self):
+        self.button.setText("You already clicked me")
+        self.button.setEnabled(False)
 
 
 app = QApplication ([])
