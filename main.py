@@ -1,4 +1,4 @@
-from locale import resetlocale
+from locale import setlocale
 from os import replace
 from token import AT
 from urllib import request, response
