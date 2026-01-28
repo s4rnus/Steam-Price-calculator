@@ -7,15 +7,21 @@ from xml.dom.minidom import Element
 #
 
 import pandas as pd
+import sys
+import random
 import time
 import random
 import requests
+import logging
+import sqlite3
+import command_prompt
+import defs
+from defs import currencies, id_to_char
+from command_prompt import parsers
 
 #
 
 from defs import items
-from defs import currencies
-from defs import id_to_char
 from selenium.webdriver import Edge
 from selenium.webdriver.common.by import By
 from selenium.webdriver.edge.options import Options
@@ -39,9 +45,10 @@ if __name__ == "__main__":
     service = Service( executable_path="./msedgedriver.exe", log_path='NUL' )
     driver = Edge( service=service, options=options )  
 
+connection = sqlite3.connect( 'itemsdb.db' )
+cursor = connection.cursor
 
 #=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====# settings | options
-
 
 rate = 1
 total_prices = []
@@ -69,68 +76,201 @@ def find_currency_rates( currencies, id_to_char ):
     return rate
 
 
-def find_prices ( items ):
+def get_price(args):
 
-    for item in items:
+    driver.get ( args.Url ) 
 
-        item_name = list(item.keys ())[0]
-        item_data = item[item_name]
+    rate = find_currency_rates( currencies, id_to_char )
 
-        try:
+    try:
+        element = WebDriverWait( driver, 4 ).until( EC.presence_of_element_located(( By.CLASS_NAME, "market_commodity_orders_header_promote" )))
+        html_source = driver.page_source
+        soup = BeautifulSoup( html_source, 'html.parser' )
 
-            driver.get ( item_data["url"] )
-            element = WebDriverWait( driver, 4 ).until( EC.presence_of_element_located(( By.CLASS_NAME, "market_commodity_orders_header_promote" )))
-            html_source = driver.page_source
-            soup = BeautifulSoup( html_source, 'html.parser' )
+        if element:
 
-            if element:
-
-                prices = soup.find_all( 'span', class_='market_commodity_orders_header_promote' )
-                price = prices[ 1 ].text.strip().replace( "$", "" )
-                prices_final[item_name] = price
-
-            else:
-                prices_final[item_name] = 0
-
-        except Exception as e:
-            print ( f"An error occured while parsing price: { str( e ) }" )
-
-    return prices_final
-
-
-def calculations (items, prices_final, rate):
-
-    for item in items:
-
-        item_name = list( item.keys () )[0]
-        item_data = item[item_name]
-        item_price = prices_final[item_name]
-
-        try:
-
-            total_price_RUB = round((float( item_price ) * int( item_data["amount"] ) * float( rate )),2)
-            total_price_USD = float( item_price ) * int( item_data["amount"] )
-            total_prices.append ( f"Total price of {item_name}: {total_price_RUB} RUB | {total_price_USD} USD" )
-                
+            prices = soup.find_all( 'span', class_='market_commodity_orders_header_promote' )
+            price = prices[ 1 ].text.strip().replace( "$", "" )
+            price_RUB = float(price)*float(rate)
+            print ( f"Price found: { price }\n" )
         
-        except Exception( TypeError, KeyError, ValueError ) as e:
+        else:
+            price = 0
+            print ( f"Price not found, set to default { price }\n" )
 
-            print ( f"An error occured while processing: {item_name}: { str( e ) }" )
+    except Exception as e:
+        print( f"An error occurred while parsing price: {e}" )
+        return [price, price_RUB]
 
-    return total_prices
+
+    return [price, price_RUB]
+
+
+def get_name(args):
+
+    driver.get ( args.Url ) 
+
+    try:
+        element = WebDriverWait( driver, 4 ).until( EC.presence_of_element_located(( By.CLASS_NAME, "f6hU22EA7Z8peFWZVBJU" )))
+        html_source = driver.page_source
+        soup = BeautifulSoup( html_source, 'html.parser' )
+
+        if element:
+
+            name = soup.find ( 'span', class_='f6hU22EA7Z8peFWZVBJU' )
+            name = name.text.strip()
+            print ( f"Name found: { name }\n" )
+
+        else:
+            name = "NOTFOUND"
+            print ( f"Name not found, set to default { name }\n" )
+
+    except Exception as e:
+        print( f"An error occurred while parsing name: { e }" )
+        return name
+
+
+    return name
+
+
+def insert_item(args):
+
+    price, price_RUB = get_price(args)
+    name = get_name(args)
+
+    connection = sqlite3.Connection ( 'itemsdb.db' )
+    cursor = connection.cursor ()
+
+    print ( f"Adding a new item with the following info: \n"
+            f"Name: {name}\n"
+            f"Url: {args.Url}\n"
+            f"Price at the start: {price} USD\n"
+            f"Amount: {args.amount}\n"
+          )
+
+    cursor.execute (f'''
+    INSERT into Items ( name, url, amount, price_start_USD, price_latest_USD, price_latest_RUB ) 
+    VALUES ( ?, ?, ?, ?, ?, ? )
+    ''', ( name, args.Url, args.amount, price, price, price_RUB ))
+
+    connection.commit ()
+    connection.close ()
+
+
+def list_items(args):
+
+    connection = sqlite3.Connection ( 'itemsdb.db' )
+    cursor = connection.cursor ()
+
+    cursor.execute (f'''
+    SELECT * FROM Items 
+    ''')
+    items = cursor.fetchall()
+
+    for item in items:
+        print(item)
+
+    connection.commit ()
+    connection.close ()
+
+
+def create_table(args):
+
+    connection = sqlite3.Connection ( 'itemsdb.db' )
+    cursor = connection.cursor ()
+
+    cursor.execute ( f'''
+    CREATE TABLE IF NOT EXISTS {args.name}
+    ''' )
+
+    connection.commit ()
+    connection.close ()
+
+
+def add_columns(args):
+
+    connection = sqlite3.Connection ( 'itemsdb.db' )
+    cursor = connection.cursor ()
+
+    cursor.execute ( f'''
+    ALTER TABLE ? ADD COLUMN ? ?
+    ''', ( args.table_name, args.column_name, args.column_data_type) )
+
+    connection.commit ()
+    connection.close ()
+
+
+def remove_items(args):
+
+    connection = sqlite3.Connection ( 'itemsdb.db' )
+    cursor = connection.cursor ()
+
+    cursor.execute ( f'''
+    DELETE FROM ? WHERE ? 
+    
+    ''' ) #=====================================# остановился тут
+
+    connection.commit ()
+    connection.close ()
 
 
 #=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====# def activations | prints
 
 
-rate = find_currency_rates( currencies, id_to_char )
-find_prices ( items )
-total_prices = calculations( items, prices_final, rate )
+def main():
 
-print ( "USD | RUB rate: ", rate, "\n" )
+    while True:
+        try:
+            user_input = input("\nType cmd or 'exit' to exit :").strip()
 
-for i in total_prices:
-    print ( i, '\n' )
+            if user_input.lower() == "exit":
+                print ("Exiting the program... ")
+                break
+            
+            if not user_input:
+                continue
+
+            args_list = user_input.split()
+
+            parser = parsers()
+            args = parser.parse_args(args_list)
+
+            command_handlers = {
+                'Insert': insert_item,
+                'List': list_items,
+                'Remove': remove_items,
+                'Create': create_table,
+                'Add': add_columns,
+                'Remove': remove_items
+                }
+
+            handler = command_handlers.get(args.command)
+            if handler:
+                handler(args)
+            else:
+                print (f"Unknown command: {args.command}")
+        
+        except SystemExit:
+            continue
+
+        except KeyboardInterrupt:
+            print ("\nExiting the program... ")
+            break
+
+if __name__ == "__main__":
+    main() 
+    input("\nPress Enter to exit...")
+         
+
+
+# rate = find_currency_rates( currencies, id_to_char )
+# find_prices ( items )
+# total_prices = calculations( items, prices_final, rate )
+
+# print ( "USD | RUB rate: ", rate, "\n" )
+
+# for i in total_prices:
+#     print ( i, '\n' )
 
 driver.quit ()
 
