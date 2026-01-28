@@ -17,7 +17,7 @@ import sqlite3
 import command_prompt
 import defs
 from defs import currencies, id_to_char
-from command_prompt import parsers
+from command_prompt import parsers, sqlkeyword_validation
 
 #
 
@@ -163,7 +163,7 @@ def list_items(args):
     cursor = connection.cursor ()
 
     cursor.execute (f'''
-    SELECT * FROM Items 
+    SELECT * FROM {args.list_table_name} 
     ''')
     items = cursor.fetchall()
 
@@ -180,8 +180,8 @@ def create_table(args):
     cursor = connection.cursor ()
 
     cursor.execute ( f'''
-    CREATE TABLE IF NOT EXISTS {args.name}
-    ''' )
+    CREATE TABLE IF NOT EXISTS ?
+    ''', ( {args.create_table_name} ) )
 
     connection.commit ()
     connection.close ()
@@ -194,7 +194,7 @@ def add_columns(args):
 
     cursor.execute ( f'''
     ALTER TABLE ? ADD COLUMN ? ?
-    ''', ( args.table_name, args.column_name, args.column_data_type) )
+    ''', ( args.add_table_name, args.column_name, args.column_data_type) )
 
     connection.commit ()
     connection.close ()
@@ -206,9 +206,8 @@ def remove_items(args):
     cursor = connection.cursor ()
 
     cursor.execute ( f'''
-    DELETE FROM ? WHERE ? 
-    
-    ''' ) #=====================================# остановился тут
+    DELETE FROM {args.remove_items_table_name} WHERE ? == ?
+    ''', ( args.param, args.value ) ) 
 
     connection.commit ()
     connection.close ()
