@@ -2,34 +2,6 @@ import argparse
 
 from requests import options
 
-
-
-class mss:
-
-    def sqlkeyword_validation(name):
-
-        sql_keywords = {
-            'SELECT', 'INSERT', 'DELETE', 'UPDATE', 'DROP', 
-            'CREATE', 'ALTER', 'UNION', 'WHERE', 'OR', 'AND'
-        }
-
-        if name.upper() in sql_keywords:
-            return False
-
-        return True
-
-
-    def pattern_validation(name):
-
-        pattern = r'^[a-zA-Z_][a-zA-Z0-9_]*$'
-
-        if not re.match(pattern, name):
-            return False
-
-        return True
-
-
-
 def parsers():
 
     parser = argparse.ArgumentParser( 
@@ -53,7 +25,11 @@ def parsers():
 
     add_parser = subparsers.add_parser ( 
         'Insert', 
-        help= '\nThis command allows you to insert an item into the database \n takes: Url, amount \n'
+        help= '\nThis command allows you to insert an item into the database \n takes: Table name, Url, amount \n'
+        )
+
+    add_parser.add_argument(
+        'add_table_name'
         )
 
     add_parser.add_argument ( 
@@ -133,7 +109,7 @@ def parsers():
         )
 
     column_add_parser.add_argument (
-        'add_table_name',
+        'add_column_table_name',
         type=str,
         )
 
