@@ -95,8 +95,6 @@ def universal_argument_validation(arguments):
     return True
 
 
-    
-
 class Parser:
 
     def find_currency_rates( currencies, id_to_char ):
@@ -323,6 +321,41 @@ class command_drivers:
             connection.close ()
 
 
+    def alter_columns (args):
+        
+        if not universal_argument_validation(args):
+            print ( f'Invalid arguments, fuck off.' )
+            return False
+
+        try:
+
+            connection = sqlite3.Connection ( 'itemsdb.db' )
+            cursor = connection.cursor ()
+
+            cursor.execute( f'''
+            SELECT name FROM sqlite_master WHERE type='table' AND name=?
+            ''', ( alter_table_name, ) )
+
+            if not cursor.fetchone():
+                print (f'Wrong table name...')
+                return False
+
+            cursor.execute( f'''
+            
+            ''' )
+
+
+
+
+        except sqlite3.Error as e:
+            print(f"DB Error: {e}")
+            connection.rollback()
+
+        finally:
+            connection.commit ()
+            connection.close ()
+
+
     def remove_items(args):
 
         if not universal_argument_validation(args):
@@ -370,6 +403,103 @@ class command_drivers:
             connection.close ()
 
 
+    def ShowTables (args):
+        
+        if not universal_argument_validation(args):
+            print ( f'Invalid arguments, fuck off.' )
+            return False
+
+        try:
+
+            connection = sqlite3.Connection('itemsdb.db')
+            cursor=connection.cursor ()
+
+            cursor.execute ('''
+            SELECT name FROM sqlite_master WHERE type='table'
+            ''')
+
+            names = cursor.fetchall ()
+
+            i = 0
+            for i, table_name in enumerate(names):
+                print (f"""Table {i}: {table_name}""")
+                i += 1
+
+
+        except sqlite3.Error as e:
+            print(f"DB Error: {e}")
+            connection.rollback()
+
+        finally:
+            connection.commit ()
+            connection.close ()
+
+
+    def ShowColumns (args):
+
+        if not universal_argument_validation(args):
+            print ( f'Invalid arguments, fuck off.' )
+            return False
+
+        try:
+
+            connection = sqlite3.Connection('itemsdb.db')
+            cursor = connection.cursor ()
+
+            cursor.execute ('''
+            SELECT name FROM sqlite_master WHERE type='table' AND name= ?
+            ''', (args.ShowC_table_name, ))
+
+            if not cursor.fetchone():
+                print (f'Wrong table name...')
+                return False
+
+            else:
+
+                if args.ShowC_column_info == 'ext':
+
+                    cursor.execute(f"""
+                    PRAGMA table_info({args.ShowC_table_name})
+                    """)
+
+                    results = cursor.fetchall()
+
+                    i=0
+
+                    for i, column in enumerate(results):
+                        print (f'''Column {i}: {column}''')
+                        i += 1
+
+
+                if args.ShowC_column_info == 'main':
+
+                                        cursor.execute(f"""
+                PRAGMA table_info({args.ShowC_table_name})
+                """)
+
+                results = cursor.fetchall()
+
+                i=0
+                filtered = []
+
+                for col in results:
+                    filtered.append( ( list(col)[1], list(col)[2] ) )
+
+                for i, col in enumerate(filtered):
+                    print (f'''Column {i}: {col}''')
+                    i += 1
+
+        except sqlite3.Error as e:
+            print(f"DB Error: {e}")
+            connection.rollback()
+
+        finally:
+            connection.commit ()
+            connection.close ()
+
+
+
+
 #=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====# def activations | prints
 
 
@@ -397,7 +527,9 @@ def main():
                 'Remove': command_drivers.remove_items,
                 'Create': command_drivers.create_table,
                 'Add': command_drivers.add_columns,
-                'Remove': command_drivers.remove_items
+                'Remove': command_drivers.remove_items,
+                'ShowT': command_drivers.ShowTables,
+                'ShowC': command_drivers.ShowColumns,
                 }
 
             handler = command_handlers.get(args.command)

@@ -125,4 +125,69 @@ def parsers():
         choices= ['INTEGER', 'REAL', 'TEXT', 'BLOB', 'NUMERIC']
         )
 
+
+    #====# display all tables
+
+
+    ShowT_parser = subparsers.add_parser (
+        'ShowT',
+        help= '\n This command allows you to show the list of all tables in the DB, take\n'
+        )
+
+    # ShowT_parser.add_argument (
+    #     'ShowT_name',
+    #     type = str,
+    #     choices= ['all'],
+    #     help= 'Shows all tables stored in DB'
+    #     )
+
+
+    #====# display all columns
+
+
+    ShowC_parser = subparsers.add_parser (
+        'ShowC',
+        help= '\nThis command allows you to display all columns in a specific table\n',
+        )
+
+    ShowC_parser.add_argument (
+        'ShowC_table_name',
+        type= str,
+        help= 'This argument takes the name of the table of which the columns will be displayed'
+        )
+
+    ShowC_parser.add_argument (
+        'ShowC_column_info',
+        choices= ['main', 'ext'],
+        default= 'main',
+        help= 'This option allows you to chose what information you want to recieve, main or exteneded'
+        )
+
+
+    #====# alter a table
+
+
+    table_alter_parser = subparsers.add_parser (
+        'AlterTable',
+        help= '\nThis command allows you to alter a spicific column in a specific table\n'
+        )
+
+    table_alter_parser.add_argument (
+        'alter_table_name',
+        type= str,
+        help= 'This argument takes the name of the table that will be altered'
+        )
+
+    table_alter_parser.add_argument (
+        'alter_table_column_name_was',
+        type= str,
+        help= 'This argument takes the name of the column that will be altered'
+        )
+
+    table_alter_parser.add_argument (
+        'alter_table_column_name_to_be',
+        type= str,
+        help= 'This argument takes the desired name of the column'
+        )
+
     return parser
