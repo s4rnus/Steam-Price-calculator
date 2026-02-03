@@ -525,6 +525,7 @@ def main():
                 'Remove': command_drivers.remove_items,
                 'Create': command_drivers.create_table,
                 'Add': command_drivers.add_columns,
+                'Remove': command_drivers.remove_items,
                 'ShowT': command_drivers.ShowTables,
                 'ShowC': command_drivers.ShowColumns,
                 }
