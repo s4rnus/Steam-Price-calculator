@@ -19,28 +19,3 @@ id_to_char = [
     ]
 
 
-    # def create_table(args):
-
-    # connection = sqlite3.Connection ( 'itemsdb.db' )
-    # cursor = connection.cursor ()
-
-    # cursor.execute( f''' 
-    # CREATE TABLE IF NOT EXISTS {table_name} ( 
-    # id INTEGER PRIMARY KEY, 
-    # name TEXT NOT NULL, 
-    # url TEXT NOT NULL, 
-    # amount INTEGER
-    # ) ''' )
-
-    # connection.commit()
-    # connection.close()
-
-            # for value in val_list:
-
-            # if isinstance (value, str):
-
-            #     if not re.match (mss.pattern, value):
-            #         return False
-
-            #     if value.upper() in mss.sql_keywords:
-            #         return False

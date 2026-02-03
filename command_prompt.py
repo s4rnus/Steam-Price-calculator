@@ -134,12 +134,12 @@ def parsers():
         help= '\n This command allows you to show the list of all tables in the DB, take\n'
         )
 
-    # ShowT_parser.add_argument (
-    #     'ShowT_name',
-    #     type = str,
-    #     choices= ['all'],
-    #     help= 'Shows all tables stored in DB'
-    #     )
+    ShowT_parser.add_argument (
+        'ShowT_name',
+        type = str,
+        choices= ['all'],
+        help= 'Shows all tables stored in DB'
+        )
 
 
     #====# display all columns

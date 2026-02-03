@@ -313,7 +313,7 @@ class command_drivers:
             cursor.execute (query)
 
         except sqlite3.Error as e:
-            print(f"DB Error: {e}")
+            print(f"DB Error: {e}") 
             connection.rollback()
             
         finally:
@@ -334,7 +334,7 @@ class command_drivers:
 
             cursor.execute( f'''
             SELECT name FROM sqlite_master WHERE type='table' AND name=?
-            ''', ( alter_table_name, ) )
+            ''', ( args.alter_table_name, ) )
 
             if not cursor.fetchone():
                 print (f'Wrong table name...')
@@ -418,7 +418,7 @@ class command_drivers:
             SELECT name FROM sqlite_master WHERE type='table'
             ''')
 
-            names = cursor.fetchall ()
+            names = cursor.fetchall().pop(-1)
 
             i = 0
             for i, table_name in enumerate(names):
@@ -495,12 +495,10 @@ class command_drivers:
 
         finally:
             connection.commit ()
-            connection.close ()
+            connection.close ()   
 
 
-
-
-#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====# def activations | prints
+#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====# main
 
 
 def main():
@@ -527,7 +525,6 @@ def main():
                 'Remove': command_drivers.remove_items,
                 'Create': command_drivers.create_table,
                 'Add': command_drivers.add_columns,
-                'Remove': command_drivers.remove_items,
                 'ShowT': command_drivers.ShowTables,
                 'ShowC': command_drivers.ShowColumns,
                 }
@@ -551,4 +548,45 @@ if __name__ == "__main__":
 
 
 driver.quit ()
+
+
+#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====# left until further notice
+
+
+    # def table_alter(args):
+        
+        
+    #     if not universal_argument_validation(args):
+    #         print ( f'Invalid arguments, fuck off.' )
+    #         return False
+
+    #     try:
+
+    #         connection = sqlite3.Connection('itemsdb.db')
+    #         cursor = connection.cursor ()
+
+    #         cursor.execute ('''
+    #         SELECT name FROM sqlite_master WHERE type='table' AND name= ?
+    #         ''', (args.ShowC_table_name, ))
+
+    #         if not cursor.fetchone():
+    #             print (f'Wrong table name...')
+    #             return False
+
+    #         else:
+
+                
+
+    #             #realised the obseliteness of this command, this will remain here until further notice.
+
+
+
+    #     except sqlite3.Error as e:
+    #         print(f"DB Error: {e}")
+    #         connection.rollback()
+
+    #     finally:
+    #         connection.commit ()
+    #         connection.close ()        
+
 
