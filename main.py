@@ -263,9 +263,19 @@ class command_drivers:
             connection = sqlite3.Connection ( 'itemsdb.db' )
             cursor = connection.cursor ()
 
+            column_def = f" {args.create_column_name} {args.create_column_data_type}"
+
+            if args.create_PK and args.create_PK.upper() == 'PK':
+
+                column_def += 'PRIMARY KEY'
+
             cursor.execute ( f'''
-            CREATE TABLE IF NOT EXISTS {args.create_table_name}
+            CREATE TABLE IF NOT EXISTS 
+            {args.create_table_name} 
+            ({column_def})
             ''')
+
+            print (f'Succesfully created table named: {args.create_table_name}')
 
         except sqlite3.Error as e:
             print(f"DB Error: {e}")
@@ -496,6 +506,7 @@ class command_drivers:
         finally:
             connection.commit ()
             connection.close ()   
+
 
 
 #=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====# main

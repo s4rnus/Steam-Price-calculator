@@ -99,6 +99,23 @@ def parsers():
         help= 'Name of the table'
         )
 
+    create_parser.add_argument (
+        'create_column_name',
+        type = str,
+        help = 'Name of an column'
+        )
+
+    create_parser.add_argument (
+        'create_column_data_type',
+        type = str,
+        help = 'Column_data_type'
+        )
+
+    create_parser.add_argument (
+        '--create_PK',
+        type = str,
+        help = 'PK or not PK'
+        )
 
     #====# adding columns 1 by 1
 
@@ -189,5 +206,17 @@ def parsers():
         type= str,
         help= 'This argument takes the desired name of the column'
         )
+
+
+    # custom_command_parser = subparsers.add_parser (
+    #     'Custom_Command',
+    #     help = 'This command allows you to parse custom commands if none of the options suite you'
+    #     )
+
+    # custom_command_parser.add_argument (
+    #     'Command',
+    #     type = str,
+    #     help = 'Insert or type your custom command here and it will be parsed'
+    #     )
 
     return parser
